@@ -3,13 +3,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const GameSchema = new Schema({
-  player: String,
+  playerName: String,
   state: {
     turn: {
       type: String,
       enum: ['monster', 'player']
     },
-    entity: {
+    monster: {
+      type: Schema.ObjectId,
+      ref: 'Entity'
+    },
+    player: {
       type: Schema.ObjectId,
       ref: 'Entity'
     }

@@ -13,16 +13,16 @@ const EntitySchema = new Schema({
   },
   shield:Number,
   hand: {
-    // amount: {
-    //   type: Number,
-    //   default: 4
-    // },
+    amount: {
+      type: Number,
+      default: 4
+    },
     cards: [{
       type: {
         type: String,
         enum: ['heal', 'damage', 'shield', 'horror'],
       },
-      effect: Number,
+      effectAmount: Number,
       looseTurn: {
         type: Boolean,
         default: false
@@ -35,9 +35,9 @@ EntitySchema.pre('save', function(next) {
   const entity = this;
   entity.hand.cards.forEach(card => {
     if(card.type === 'horror') {
-      card.looseTurn == true;
+      card.looseTurn = true;
     } else if (card.type != 'horror') {
-      card.effect = Math.floor(Math.random() * 5) + 1;
+      card.effectAmount = Math.floor(Math.random() * 5) + 1;
     }
   })
   return next();
