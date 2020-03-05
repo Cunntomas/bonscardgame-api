@@ -21,6 +21,10 @@ const GameSchema = new Schema({
       type: Schema.ObjectId,
       ref: 'Entity'
     }
+  },
+  maxTurns : {
+    type: Number,
+    default: 12
   }
 });
 
