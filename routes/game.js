@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const {Game, Entity} = require('../models');
-const {initialHand, drawCard} = require('../utils/cards-generator');
+const {initialHand, randomCard} = require('../utils/cards-generator');
 
 router.post('/newgame', async (req,res) => {
   if(!req.body.player) {
@@ -58,13 +58,18 @@ router.post('/newgame', async (req,res) => {
 });
 
 router.post('/next-turn', (req,res) => {
-  if(!req.body.player) {
+  if(!req.body.card) {
     return status(400).json({
       error: "Player must select a card to play"
     })
   }
-
-
+  if(!req.body.player) {
+    return status(400).json({
+      error: "Player's nickname is required."
+    })
+  }
+  let card = req.body.card;
+  let player = req.body.player;
 
 })
 

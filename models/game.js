@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const GameSchema = new Schema({
-  playerName: String,
+  playerName: {
+    type: String,
+    unique: true,
+    required: true
+  },
   state: {
     turn: {
       type: String,
