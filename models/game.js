@@ -22,7 +22,7 @@ const GameSchema = new Schema({
       ref: 'Entity'
     }
   },
-  maxTurns : {
+  turnsLeft : {
     type: Number,
     default: 12
   }

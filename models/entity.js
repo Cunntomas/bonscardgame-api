@@ -13,10 +13,6 @@ const EntitySchema = new Schema({
   },
   shield:Number,
   hand: {
-    amount: {
-      type: Number,
-      default: 4
-    },
     cards: [{
       type: {
         type: String,
