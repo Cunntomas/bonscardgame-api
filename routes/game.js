@@ -11,27 +11,32 @@ router.post('/newgame', async (req,res) => {
       error: "Player's nickname is required."
     })
   }
+  let game = await Game.findOne({playerName: req.body.player});
+  if(game) {
+    return res.status(400).json({
+      error: "NickName already in use."
+    })
+  }
+
   let playerName = req.body.player;
   let monsterHand =  initialHand();
   let monster = new Entity({
     type: 'monster',
-    hand: {
-      cards: monsterHand
-    },
+    cards: monsterHand,
     shield: 10
   });
+
   let playerHand =  initialHand();
   let player = new Entity({
     type: 'player',
-    hand: {
-      cards: playerHand
-    },
+    cards: playerHand,
     shield: 0
   });
 
   try {
     monster = await monster.save();
     player = await player.save();
+
     let game = new Game({
       playerName,
       state: {
@@ -39,11 +44,13 @@ router.post('/newgame', async (req,res) => {
         player: player.id
       }
     });
+
     game = await game.save();
 
     return res.status(200).json({
       message: 'Game created successfully!',
       player,
+      monster,
       game
     })
   }
@@ -55,6 +62,7 @@ router.post('/newgame', async (req,res) => {
       message: 'Internal error'
     });
   }
+
 });
 
 router.post('/next-turn', async (req,res) => {
@@ -63,8 +71,6 @@ router.post('/next-turn', async (req,res) => {
       error: "Player must select a card to play"
     })
   }
-
-
   if(!req.body.player) {
     return res.status(400).json({
       error: "Player's nickname is required."
@@ -72,7 +78,11 @@ router.post('/next-turn', async (req,res) => {
   }
 
   let game = await Game.findOne({playerName: req.body.player}).populate('state.monster state.player');
-
+  if(!game) {
+    return res.status(400).json({
+      error: "Wrong game."
+    })
+  }
   if(game.state.turnsLeft === 0) {
     return res.status(200).json({
       message: 'You run out of turns. Game over!'
@@ -80,30 +90,39 @@ router.post('/next-turn', async (req,res) => {
   }
 
   let playedCard = req.body.playedCard;
-
   let player = game.state.player;
-  let playersHand = player.hand.cards;
-
   let monster = game.state.monster;
-  let monstersHand = monster.hand.cards;
 
-  let notFound = false;
+  // for (var i = 0; i < player.cards.length; i++) {
+  //   if (player.cards[i]._id == playedCard) {
+  //     calculateEffects(player, player.cards[i], monster);
+  //     player.cards.splice(i,1);
+  //     break;
+  //   } else {
+  //     notFound = true;
+  //   }
+  // }
+  const validCard = (card) => card._id == playedCard;
+  let card = player.cards.findIndex(validCard);
 
-
-  for (var i = 0; i < playersHand.length; i++) {
-    if (playersHand[i]._id == playedCard) {
-      calculateEffects(player, playersHand[i], monster);
-      playersHand.splice(i,1);
-    } else {
-      let notFound = true;
-    }
-  }
-
-  if(notFound) {
+  if(card === -1) {
     return res.status(400).json({
       error: "Wrong card."
     })
   }
+
+  let newState = calculateEffects(player, player.cards[card], monster);
+  console.log(newState);
+  player = newState.attacker;
+  monster = newState.defender;
+
+
+  // player.cards.splice(card,1);
+  // let drawCard = randomCard();
+  // player.cards.push(drawCard);
+  // await player.save();
+  // await monster.save();
+
 
   return res.status(200).json({true:true});
 })

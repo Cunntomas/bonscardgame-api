@@ -1,4 +1,5 @@
 'use strict';
+const {Cards} = require('../models');
 
 function pickAvailableCard(hand) {
   let effect = Math.floor(Math.random() * 4) + 1;
@@ -26,10 +27,10 @@ function damageEffect(defender, card) {
 
 
 function calculateEffects(attacker, playedCard, defender) {
-  if (playedCard.type === 'heal') healEffect(attacker, playedCard);
-  if (playedCard.type === 'shield') shieldEffect(attacker, playedCard);
-  if (playedCard.type === 'damage') damageEffect(defender, playedCard);
-  if (playedCard.type === 'horror') return false;
+  if (Cards[playedCard.effect] === 'heal') healEffect(attacker, playedCard);
+  if (Cards[playedCard.effect] === 'shield') shieldEffect(attacker, playedCard);
+  if (Cards[playedCard.effect] === 'damage') damageEffect(defender, playedCard);
+  if (Cards[playedCard.effect] === 'horror') return false;
 
   return {attacker, defender};
 }

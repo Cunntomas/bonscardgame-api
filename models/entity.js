@@ -12,31 +12,11 @@ const EntitySchema = new Schema({
     default: 20
   },
   shield:Number,
-  hand: {
-    cards: [{
-      type: {
-        type: String,
-        enum: ['heal', 'damage', 'shield', 'horror'],
-      },
-      effectAmount: Number,
-      looseTurn: {
-        type: Boolean,
-        default: false
-      }
-    }]
-  }
-});
-
-EntitySchema.pre('save', function(next) {
-  const entity = this;
-  entity.hand.cards.forEach(card => {
-    if(card.type === 'horror') {
-      card.looseTurn = true;
-    } else if (card.type != 'horror') {
-      card.effectAmount = Math.floor(Math.random() * 5) + 1;
-    }
-  })
-  return next();
+  cards: [{
+    effect: Number,
+    effectAmount: Number,
+    looseTurn: Boolean
+  }]
 });
 
 module.exports = mongoose.model('Entity', EntitySchema);
