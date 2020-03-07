@@ -14,9 +14,12 @@ const EntitySchema = new Schema({
   shield:Number,
   cards: [{
     effect: Number,
-    effectAmount: Number,
-    looseTurn: Boolean
-  }]
+    effectAmount: Number
+  }],
+  losesTurn: {
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model('Entity', EntitySchema);

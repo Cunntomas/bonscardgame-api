@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const {Game, Entity} = require('../models');
 const {initialHand, randomCard} = require('../utils/cards-generator');
-const {calculateEffects} = require('../utils/game-AI');
+const {calculateEffects, pickAvailableCard} = require('../utils/game-AI');
 
 router.post('/newgame', async (req,res) => {
   if(!req.body.player) {
@@ -88,41 +88,60 @@ router.post('/next-turn', async (req,res) => {
       message: 'You run out of turns. Game over!'
     })
   }
-
+  let playerCard, monsterCard;
   let playedCard = req.body.playedCard;
   let player = game.state.player;
   let monster = game.state.monster;
 
-  // for (var i = 0; i < player.cards.length; i++) {
-  //   if (player.cards[i]._id == playedCard) {
-  //     calculateEffects(player, player.cards[i], monster);
-  //     player.cards.splice(i,1);
-  //     break;
-  //   } else {
-  //     notFound = true;
-  //   }
-  // }
-  const validCard = (card) => card._id == playedCard;
-  let card = player.cards.findIndex(validCard);
+  if(!player.losesTurn) {
+    const validPlayerCard = (card) => card._id == playedCard;
+    playerCard = player.cards.findIndex(validPlayerCard);
 
-  if(card === -1) {
-    return res.status(400).json({
-      error: "Wrong card."
-    })
+    if(playerCard === -1) {
+      return res.status(400).json({
+        error: "Wrong card."
+      })
+    }
+
+    let newPlayerTurnState = calculateEffects(player, player.cards[playerCard], monster);
+    player = newPlayerTurnState.attacker;
+    monster = newPlayerTurnState.defender;
+
+    let playerDrawCard = randomCard();
+    player.cards.splice(playerCard,1);
+    player.cards.push(playerDrawCard);
+  }
+  // ==========================================================================
+  // ==========================================================================
+  // TERMINA EL TURNO DEL JUGADOR
+  // COMIENZA EL TURNO DEL MOUNSTRUO
+  // FALTA IMPLEMENTAR LOGICA DE SALTO DE TURNO
+  // ==========================================================================
+  // ==========================================================================
+  if(!monster.losesTurn) {
+    monsterCard = pickAvailableCard(monster.cards);
+    const validMonsterCard = (card) => card._id == monsterCard._id;
+    let cardIndex = monster.cards.findIndex(validMonsterCard);
+
+    let newMonsterTurnState = calculateEffects(monster, monsterCard, player);
+    console.log(newMonsterTurnState);
+    console.log(monsterCard);
+
+    monster = newMonsterTurnState.attacker;
+    player= newMonsterTurnState.defender;
+    monster.cards.splice(cardIndex,1);
+    let monsterDrawCard = randomCard();
+    monster.cards.push(monsterDrawCard);
+  }
+  if(!playerCard || playerCard.effect !== 4) {
+    player.losesTurn = false
   }
 
-  let newState = calculateEffects(player, player.cards[card], monster);
-  console.log(newState);
-  player = newState.attacker;
-  monster = newState.defender;
-
-
-  // player.cards.splice(card,1);
-  // let drawCard = randomCard();
-  // player.cards.push(drawCard);
-  // await player.save();
-  // await monster.save();
-
+  if(!monsterCard || monsterCard.effect !== 4) {
+    monster.losesTurn = false
+  }
+  await player.save();
+  await monster.save();
 
   return res.status(200).json({true:true});
 })

@@ -4,14 +4,10 @@ const cards = require('../models/cards');
 function randomCard() {
   let card = {};
   card.effect = Math.floor(Math.random() * 4) + 1;
-  if(card.effect === 4) {
-    card.looseTurn = true;
-  } else {
+  if(card.effect !== 4) {
     card.effectAmount = Math.floor(Math.random() * 5) + 1;
-    card.looseTurn = false;
   }
   return card;
-
 }
 
 function initialHand() {
@@ -22,11 +18,8 @@ function initialHand() {
     hand.push({effect});
   }
   hand.forEach(card => {
-    if(card.type === 4) {
-      card.looseTurn = true;
-    } else {
+    if(card.effect != 4) {
       card.effectAmount = Math.floor(Math.random() * 5) + 1;
-      card.looseTurn = false;
     }
   })
   return hand;
