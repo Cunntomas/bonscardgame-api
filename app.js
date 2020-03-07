@@ -1,10 +1,10 @@
 'use strict';
-const express = require('express');
+require('dotenv').config();
 const routes = require('./routes');
 const bodyParser = require('body-parser');
-require('dotenv').config();
-const app  = express();
-
+var express = require('express');
+var cors = require('cors');
+var app = express();
 function connectMongoose() {
     const mongoose = require('mongoose');
     mongoose.Promise = Promise;
@@ -17,15 +17,11 @@ function connectMongoose() {
 }
 
 function initialize() {
-    app.use((req, res, next) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With,content-type, authorization, stripe-signature');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        res.setHeader('Access-Control-Allow-Credentials', true);
-        next();
-    });
+
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(cors());
+
 
     Object.keys(routes).forEach((key) => {
         app.use(`/api/${key}`, routes[key]);

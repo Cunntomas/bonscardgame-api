@@ -19,6 +19,10 @@ const EntitySchema = new Schema({
   losesTurn: {
     type: Boolean,
     default: false
+  },
+  lastCardPlayed: {
+    effect: String,
+    effectAmount: Number
   }
 });
 

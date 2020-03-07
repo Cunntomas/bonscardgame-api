@@ -1,5 +1,17 @@
 'use strict';
-const cards = require('../models/cards');
+const Cards = require('../models/cards');
+
+function translateEffects(hand) {
+  let viewHand = [];
+  hand.forEach((card) => {
+    viewHand.push({
+      effect: Cards[card.effect],
+      effectAmount: card.effectAmount,
+      id: card._id
+    });
+  });
+  return viewHand;
+}
 
 function randomCard() {
   let card = {};
@@ -36,6 +48,7 @@ function initialHand() {
 }
 
 module.exports = {
+  translateEffects,
   initialHand,
   randomCard
 }
