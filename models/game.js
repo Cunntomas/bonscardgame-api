@@ -20,12 +20,14 @@ const GameSchema = new Schema({
     player: {
       type: Schema.ObjectId,
       ref: 'Entity'
+    },
+    turnsLeft : {
+      type: Number,
+      default: 12
     }
   },
-  turnsLeft : {
-    type: Number,
-    default: 12
-  }
+  finished: Boolean,
+  result: String
 });
 
 module.exports = mongoose.model('Game', GameSchema);

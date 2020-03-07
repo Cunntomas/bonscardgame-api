@@ -83,6 +83,11 @@ router.post('/next-turn', async (req,res) => {
       error: "Wrong game."
     })
   }
+  if(game.finished) {
+    return res.status(400).json({
+      error: "Game is over"
+    })
+  }
   if(game.state.turnsLeft === 0) {
     return res.status(200).json({
       message: 'You run out of turns. Game over!'
@@ -124,7 +129,6 @@ router.post('/next-turn', async (req,res) => {
     let cardIndex = monster.cards.findIndex(validMonsterCard);
 
     let newMonsterTurnState = calculateEffects(monster, monsterCard, player);
-    console.log(newMonsterTurnState);
     console.log(monsterCard);
 
     monster = newMonsterTurnState.attacker;
@@ -133,16 +137,35 @@ router.post('/next-turn', async (req,res) => {
     let monsterDrawCard = randomCard();
     monster.cards.push(monsterDrawCard);
   }
-  if(!playerCard || playerCard.effect !== 4) {
+
+  if(!monsterCard || monsterCard.effect !== 4) {
+    console.log('player dont loses turn');
     player.losesTurn = false
   }
 
-  if(!monsterCard || monsterCard.effect !== 4) {
+  if(!playerCard || playerCard.effect !== 4) {
+    console.log('monster dont loses turn');
     monster.losesTurn = false
   }
+
   await player.save();
   await monster.save();
 
+  if(monster.hp < 1) {
+    game.finished = true;
+    game.result = 'Player won';
+    return res.status(200).json({message:'You won! The monster is dead!'});
+  }
+
+  if(player.hp < 1) {
+    game.finished = true;
+    game.result = 'Player Lost';
+    return res.status(200).json({message:'You died! Game over!'});
+  }
+
+  game.state.turnsLeft -= 1;
+  await game.save();
+  console.log(game.state.turnsLeft);
   return res.status(200).json({true:true});
 })
 

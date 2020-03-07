@@ -5,7 +5,12 @@ function randomCard() {
   let card = {};
   card.effect = Math.floor(Math.random() * 4) + 1;
   if(card.effect !== 4) {
-    card.effectAmount = Math.floor(Math.random() * 5) + 1;
+    if(card.effect === 3) {
+      card.effectAmount = Math.floor(Math.random() * 5) + 2;
+    }
+    if(card.effect !== 3) {
+      card.effectAmount = Math.floor(Math.random() * 3) + 1;
+    }
   }
   return card;
 }
@@ -18,8 +23,13 @@ function initialHand() {
     hand.push({effect});
   }
   hand.forEach(card => {
-    if(card.effect != 4) {
-      card.effectAmount = Math.floor(Math.random() * 5) + 1;
+    if(card.effect !== 4) {
+      if(card.effect === 3) {
+        card.effectAmount = Math.floor(Math.random() * 5) + 2;
+      }
+      if(card.effect !== 3) {
+        card.effectAmount = Math.floor(Math.random() * 3) + 1;
+      }
     }
   })
   return hand;
