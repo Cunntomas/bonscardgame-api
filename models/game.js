@@ -9,10 +9,6 @@ const GameSchema = new Schema({
     required: true
   },
   state: {
-    turn: {
-      type: String,
-      enum: ['monster', 'player']
-    },
     monster: {
       type: Schema.ObjectId,
       ref: 'Entity'
@@ -27,7 +23,10 @@ const GameSchema = new Schema({
     }
   },
   finished: Boolean,
-  result: String
+  result: {
+    type: String,
+    default: 'En juego'
+  }
 });
 
 module.exports = mongoose.model('Game', GameSchema);

@@ -1,8 +1,18 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const {Game, Entity} = require('../models');
+const {Game, Cards} = require('../models');
 
+function translateEffects(hand) {
+  let viewHand = [];
+  hand.forEach((card) => {
+    viewHand.push({
+      effect: Cards[card.effect],
+      effectAmount: card.effectAmount
+    });
+  });
+  return viewHand;
+}
 
 router.get('/monster/:player', async (req, res) => {
   if(!req.params.player) {
@@ -13,14 +23,15 @@ router.get('/monster/:player', async (req, res) => {
 
   try {
     let game = await Game.findOne({playerName: req.params.player}).populate('state.monster');
-
     if(!game) {
       return res.status(400).json({
         error: "Wrong game."
       })
     }
-
-    let monsterState = game.state.monster;
+    let monsterState = {
+      hp: game.state.monster.hp,
+      shield: game.state.monster.shield
+    }
     return res.status(200).json({
       monsterState
     })
@@ -40,15 +51,17 @@ router.get('/player/:player', async (req, res) => {
     })
   }
 
-  if(!game) {
-    return res.status(400).json({
-      error: "Wrong game."
-    })
-  }
-
   try {
-    let game = await Game.findOne({playerName: req.params.player}).populate('player.monster');
-    let playerState = game.state.player;
+    let game = await Game.findOne({playerName: req.params.player}).populate('state.player');
+    if(!game) {
+      return res.status(400).json({
+        error: "Wrong game."
+      })
+    }
+    let playerState = {
+      hp: game.state.player.hp,
+      shield: game.state.player.shield
+    }
     return res.status(200).json({
       playerState
     })

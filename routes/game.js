@@ -66,11 +66,6 @@ router.post('/newgame', async (req,res) => {
 });
 
 router.post('/next-turn', async (req,res) => {
-  if(!req.body.playedCard) {
-    return res.status(400).json({
-      error: "Player must select a card to play"
-    })
-  }
   if(!req.body.player) {
     return res.status(400).json({
       error: "Player's nickname is required."
@@ -94,11 +89,11 @@ router.post('/next-turn', async (req,res) => {
     })
   }
   let playerCard, monsterCard;
-  let playedCard = req.body.playedCard;
   let player = game.state.player;
   let monster = game.state.monster;
 
-  if(!player.losesTurn) {
+  if(!player.losesTurn && req.body.playedCard) {
+    let playedCard = req.body.playedCard;
     const validPlayerCard = (card) => card._id == playedCard;
     playerCard = player.cards.findIndex(validPlayerCard);
 
@@ -139,12 +134,10 @@ router.post('/next-turn', async (req,res) => {
   }
 
   if(!monsterCard || monsterCard.effect !== 4) {
-    console.log('player dont loses turn');
     player.losesTurn = false
   }
 
   if(!playerCard || playerCard.effect !== 4) {
-    console.log('monster dont loses turn');
     monster.losesTurn = false
   }
 
